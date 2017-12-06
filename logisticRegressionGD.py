@@ -159,7 +159,7 @@ def train(X,y,val_x,val_y):
     init_w = np.matrix(np.zeros(m)).T
     print("begin to train")
     alpha=0.1
-    num_rounds=500
+    num_rounds=1000
     lamb = 1
     w,train_loss_history,NAG_loss_history = NAG(X,y,init_w,alpha,lamb,num_rounds,val_x,val_y)
     print("NAG acc: %f"%predict(val_x,val_y,w))
