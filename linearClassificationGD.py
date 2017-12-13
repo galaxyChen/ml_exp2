@@ -33,9 +33,7 @@ def gradientDecent(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
     print("GradientDecent begin")   
     
     for i in range(num_rounds):
-        random = list(range(0,X.shape[0]))
-        np.random.shuffle(random)
-        random = random[0:100]
+        random = np.random.permutation(X.shape[0])[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -59,9 +57,7 @@ def NAG(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
     vb = 0
     
     for i in range(num_rounds):
-        random = list(range(0,X.shape[0]))
-        np.random.shuffle(random)
-        random = random[0:100]
+        random = np.random.permutation(X.shape[0])[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -95,9 +91,7 @@ def RMSProp(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
     e = 1e-8
     
     for i in range(num_rounds):
-        random = list(range(0,X.shape[0]))
-        np.random.shuffle(random)
-        random = random[0:100]
+        random = np.random.permutation(X.shape[0])[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -132,9 +126,7 @@ def AdaDelta(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
     tb = 0
     
     for i in range(num_rounds):
-        random = list(range(0,X.shape[0]))
-        np.random.shuffle(random)
-        random = random[0:100]
+        random = np.random.permutation(X.shape[0])[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -174,9 +166,7 @@ def Adam(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
     
     
     for i in range(num_rounds):
-        random = list(range(0,X.shape[0]))
-        np.random.shuffle(random)
-        random = random[0:100]
+        random = np.random.permutation(X.shape[0])[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -205,7 +195,7 @@ def train(X,y,val_x,val_y):
     m = X.shape[1]
     init_w = np.matrix(np.random.randn(m,1))
     print("begin to train")
-    C=0.1
+    C = 5
     init_b = np.random.randn()
     alpha = 0.1
     num_rounds=200
