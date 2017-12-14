@@ -227,7 +227,3 @@ def getData():
 
 train_x,test_x,train_y,test_y = getData()
 w = train(train_x,train_y,test_x,test_y)
-
-
-# -*- coding: utf-8 -*-
-
