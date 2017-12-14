@@ -33,7 +33,7 @@ def gradientDecent(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
     print("GradientDecent begin")   
     
     for i in range(num_rounds):
-        random = list(set(np.random.randint(0,X.shape[0],size=100)))
+        random = np.random.permutation(X.shape[0])[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -41,7 +41,7 @@ def gradientDecent(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
         new_b = b - gradient(gdx,gdy,w,C,b)[1]*alpha
         w = new_w
         b = new_b
-        train_loss_history.append(loss(X,y,w,b,C))
+        train_loss_history.append(loss(gdx,gdy,w,b,C))
         val_loss_history.append(loss(val_x,val_y,w,b,C))
         
     return w,b,train_loss_history,val_loss_history
@@ -57,7 +57,7 @@ def NAG(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
     vb = 0
     
     for i in range(num_rounds):
-        random = list(set(np.random.randint(0,X.shape[0],size=100)))
+        random = np.random.permutation(X.shape[0])[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -91,7 +91,7 @@ def RMSProp(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
     e = 1e-8
     
     for i in range(num_rounds):
-        random = list(set(np.random.randint(0,X.shape[0],size=100)))
+        random = np.random.permutation(X.shape[0])[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -126,7 +126,7 @@ def AdaDelta(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
     tb = 0
     
     for i in range(num_rounds):
-        random = list(set(np.random.randint(0,X.shape[0],size=100)))
+        random = np.random.permutation(X.shape[0])[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -156,17 +156,17 @@ def Adam(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
     val_loss_history.append(loss(X,y,w,b,C))
     print("Adam begin")
     
-    r = 0.999
+    r = 0.99
     vw = np.zeros(w.shape)
     vb = 0
-    e = 1e-8
+    e = 1e-6
     mw = np.zeros(w.shape)
     mb = 0
     b1 = 0.9
     
     
     for i in range(num_rounds):
-        random = list(set(np.random.randint(0,X.shape[0],size=100)))
+        random = np.random.permutation(X.shape[0])[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -174,14 +174,14 @@ def Adam(X,y,w,C,b,alpha,num_rounds,val_x,val_y):
         gt_2 = np.matrix(gt**2)
         vw = r*vw + (1-r)*gt_2
         mw = b1*mw + (1-b1)*gt
-        alp = 0.001*np.sqrt(1-r)/(1-b1)
+        alp = alpha*np.sqrt(1-r)/(1-b1)
         w = w - alp*mw/np.sqrt(vw+e).A
 
         gt = gradient(gdx,gdy,w,C,b)[1]
         gt_2 = np.matrix(gt**2)
         vb = r*vb + (1-r)*gt_2
         mb = b1*mb + (1-b1)*gt
-        alp = 0.001*np.sqrt(1-r)/(1-b1)
+        alp = alpha*np.sqrt(1-r)/(1-b1)
         b = b - alp*mb/np.sqrt(vb+e).A
 
         train_loss_history.append(loss(X,y,w,b,C))
@@ -195,15 +195,15 @@ def train(X,y,val_x,val_y):
     m = X.shape[1]
     init_w = np.matrix(np.random.randn(m,1))
     print("begin to train")
-    C=0.1
+    C = 5
     init_b = np.random.randn()
-    alpha = 0.01
-    num_rounds=100
+    alpha = 0.1
+    num_rounds=200
     
     print("default acc: %f"%predict(val_x,val_y,init_w,init_b))
     print("")
     
-    w,b,train_loss_history,NAG_loss_history = gradientDecent(X,y,init_w,C,init_b,alpha,num_rounds,val_x,val_y)
+    w,b,train_loss_history,loss_history = gradientDecent(X,y,init_w,C,init_b,alpha,num_rounds,val_x,val_y)
     print("Gradient Decent acc: %f"%predict(val_x,val_y,w,b))
     print("")
     w,b,train_loss_history,NAG_loss_history = NAG(X,y,init_w,C,init_b,alpha,num_rounds,val_x,val_y)
@@ -218,6 +218,7 @@ def train(X,y,val_x,val_y):
     w,b,train_loss_history,Adam_loss_history = Adam(X,y,init_w,C,init_b,alpha,num_rounds,val_x,val_y)
     print("Adam acc: %f"%predict(val_x,val_y,w,b))
     print("")
+    plt.plot(np.arange(num_rounds+1),loss_history,label='GradientDecent loss')
     plt.plot(np.arange(num_rounds+1),NAG_loss_history,label='NAG loss')
     plt.plot(np.arange(num_rounds+1),RMSProp_loss_history,label='RMSProp loss')
     plt.plot(np.arange(num_rounds+1),AdaDelta_loss_history,label='AdaDelta loss')

@@ -38,7 +38,13 @@ def gradientDecent(X,y,w,alpha,lamb,num_rounds,val_x,val_y):
     val_loss_history.append(loss(val_x,val_y,w,lamb))
     
     for i in range(num_rounds):
-        w = w - gradient(X,y,w,lamb)*alpha
+        random = list(range(0,X.shape[0]))
+        np.random.shuffle(random)
+        random = random[0:100]
+        gdx = X[random]
+        gdy = y[random]
+
+        w = w - gradient(gdx,gdy,w,lamb)*alpha
         train_loss_history.append(loss(X,y,w,lamb))
         val_loss_history.append(loss(val_x,val_y,w,lamb))
         
@@ -56,7 +62,9 @@ def NAG(X,y,w,alpha,lamb,num_rounds,val_x,val_y):
     v = np.zeros(w.shape)
     
     for i in range(num_rounds):
-        random = list(set(np.random.randint(0,X.shape[0],size=100)))
+        random = list(range(0,X.shape[0]))
+        np.random.shuffle(random)
+        random = random[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -76,19 +84,21 @@ def RMSProp(X,y,w,alpha,lamb,num_rounds,val_x,val_y):
     val_loss_history.append(loss(val_x,val_y,w,lamb))
     print("RMSProp begin")
     
-    r = 0.9
+    r = 0.99
     v = np.zeros(w.shape)
     e = 1e-8
     
     for i in range(num_rounds):
-        random = list(set(np.random.randint(0,X.shape[0],size=100)))
+        random = list(range(0,X.shape[0]))
+        np.random.shuffle(random)
+        random = random[0:100]
         gdx = X[random]
         gdy = y[random]
         
         gt = gradient(gdx,gdy,w,lamb)
         gt_2 = np.matrix((gt.A)**2)
         v = r*v + (1-r)*gt_2
-        w = w - 0.001/np.sqrt(v+e).A*(gt.A)
+        w = w - alpha/np.sqrt(v+e).A*(gt.A)
         train_loss_history.append(loss(X,y,w,lamb))
         val_loss_history.append(loss(val_x,val_y,w,lamb))
         
@@ -103,11 +113,13 @@ def AdaDelta(X,y,w,alpha,lamb,num_rounds,val_x,val_y):
     
     r = 0.95
     v = np.zeros(w.shape)
-    e = 1e-6
+    e = 1e-4
     t = np.matrix(np.zeros(w.shape))
     
     for i in range(num_rounds):
-        random = list(set(np.random.randint(0,X.shape[0],size=100)))
+        random = list(range(0,X.shape[0]))
+        np.random.shuffle(random)
+        random = random[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -137,7 +149,9 @@ def Adam(X,y,w,alpha,lamb,num_rounds,val_x,val_y):
     
     
     for i in range(num_rounds):
-        random = list(set(np.random.randint(0,X.shape[0],size=100)))
+        random = list(range(0,X.shape[0]))
+        np.random.shuffle(random)
+        random = random[0:100]
         gdx = X[random]
         gdy = y[random]
         
@@ -145,7 +159,7 @@ def Adam(X,y,w,alpha,lamb,num_rounds,val_x,val_y):
         gt_2 = np.matrix((gt.A)**2)
         v = r*v + (1-r)*gt_2
         m = b1*m + (1-b1)*gt.A
-        alp = 0.001*np.sqrt(1-r)/(1-b1)
+        alp = alpha*np.sqrt(1-r)/(1-b1)
         w = w - alp*m/np.sqrt(v+e).A
         train_loss_history.append(loss(X,y,w,lamb))
         val_loss_history.append(loss(val_x,val_y,w,lamb))
@@ -159,8 +173,11 @@ def train(X,y,val_x,val_y):
     init_w = np.matrix(np.zeros(m)).T
     print("begin to train")
     alpha=0.1
-    num_rounds=1000
+    num_rounds=100
     lamb = 1
+    w,train_loss_history,loss_history = gradientDecent(X,y,init_w,alpha,lamb,num_rounds,val_x,val_y)
+    print("Gradient Decent acc: %f"%predict(val_x,val_y,w))
+    print("")
     w,train_loss_history,NAG_loss_history = NAG(X,y,init_w,alpha,lamb,num_rounds,val_x,val_y)
     print("NAG acc: %f"%predict(val_x,val_y,w))
     print("")
@@ -173,6 +190,7 @@ def train(X,y,val_x,val_y):
     w,train_loss_history,Adam_loss_history = Adam(X,y,init_w,alpha,lamb,num_rounds,val_x,val_y)
     print("Adam acc: %f"%predict(val_x,val_y,w))
     print("")
+    plt.plot(np.arange(num_rounds+1),loss_history,label='GradientDecent loss')
     plt.plot(np.arange(num_rounds+1),NAG_loss_history,label='NAG loss')
     plt.plot(np.arange(num_rounds+1),RMSProp_loss_history,label='RMSProp loss')
     plt.plot(np.arange(num_rounds+1),AdaDelta_loss_history,label='AdaDelta loss')
