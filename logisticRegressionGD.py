@@ -170,7 +170,7 @@ def Adam(X,y,w,alpha,lamb,num_rounds,val_x,val_y):
 
 def train(X,y,val_x,val_y):
     m = X.shape[1]
-    init_w = np.matrix(np.zeros(m)).T
+    init_w = np.matrix(np.random.randn(m,1))
     print("begin to train")
     alpha=0.1
     num_rounds=100
